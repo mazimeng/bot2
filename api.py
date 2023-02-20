@@ -112,7 +112,8 @@ class Bot:
             answer = Answer(None, data["conversation_id"], data["parent_id"], True)
             self.queue_answer(question.question_id, answer)
         except Exception as ex:
-            answer = Answer(str(ex), None, None, True)
+            answer = Answer(str(ex), None, None, False)
+            answer = Answer(None, None, None, True)
             self.queue_answer(question.question_id, answer)
 
     def queue_answer(self, question_id, answer):
