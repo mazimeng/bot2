@@ -33,7 +33,7 @@ def initialize_logging():
     logHandler = handlers.TimedRotatingFileHandler('logs/server.log', when='D', interval=1)
     logHandler.setLevel(logging.INFO)
     ## Here we set our logHandler's formatter
-    # logHandler.setFormatter(formatter)
+    logHandler.setFormatter(formatter)
     logger.addHandler(logHandler)
     
     logHandler = logging.StreamHandler()
