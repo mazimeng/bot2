@@ -100,16 +100,20 @@ class Bot:
 
         text_pos = 0
         self.logger.info("asking, %s, %s, %s, %s", question.question_id, question.conversation_id, question.parent_id, question.text)
-        for data in chatbot.ask(question.text, conversation_id=question.conversation_id, parent_id=question.parent_id, timeout=self.ask_timeout):
-            message = data["message"][text_pos:]
-            text_pos = len(data["message"])
-            answer = Answer(
-                message, data["conversation_id"], data["parent_id"], False)
+        try:
+            for data in chatbot.ask(question.text, conversation_id=question.conversation_id, parent_id=question.parent_id, timeout=self.ask_timeout):
+                message = data["message"][text_pos:]
+                text_pos = len(data["message"])
+                answer = Answer(
+                    message, data["conversation_id"], data["parent_id"], False)
+                self.queue_answer(question.question_id, answer)
+                self.logger.info("receiving answer, %s, %s, %s, %s", message, question.question_id, data["conversation_id"], data["parent_id"])
+            self.logger.info("answer complete, %s, %s", question.question_id, data)
+            answer = Answer(None, data["conversation_id"], data["parent_id"], True)
             self.queue_answer(question.question_id, answer)
-            self.logger.info("receiving answer, %s, %s, %s, %s", message, question.question_id, data["conversation_id"], data["parent_id"])
-        self.logger.info("answer complete, %s, %s", question.question_id, data)
-        answer = Answer(None, data["conversation_id"], data["parent_id"], True)
-        self.queue_answer(question.question_id, answer)
+        except Exception as ex:
+            answer = Answer(str(ex), None, None, True)
+            self.queue_answer(question.question_id, answer)
 
     def queue_answer(self, question_id, answer):
         self.answer_queues_lock.acquire(blocking=True, timeout=1)
